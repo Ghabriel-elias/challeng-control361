@@ -1,44 +1,28 @@
 'use client'
-import { GlobalIcon } from "@/components/GlobalIcon";
 import { useDebounce } from "@/hooks/useDebounce";
-import { HTMLAttributes, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
+import { RadioComponent } from "@/components/RadioComponent";
+import { ButtonComponent } from "@/components/ButtonComponent";
+import { InputComponent } from "@/components/InputComponent";
+import { TableCell } from "@/components/TableCellComponent";
+import { TableHeaderComponent } from "@/components/TableHeaderComponent";
 
-interface RadioComponentProps {
-  onClick: () => void
-  text: string
-  isSelected: boolean
+const center = {
+  lat: -3.745,
+  lng: -38.523,
 }
 
-const RadioComponent = ({
-  isSelected,
-  text,
-  onClick
-}: RadioComponentProps) => {
-  return (
-    <div className="flex flex-row gap-2 cursor-pointer" onClick={onClick}>
-      <GlobalIcon className="mt-0.5" iconName={isSelected ? "IoMdRadioButtonOn" : "IoMdRadioButtonOff"} color="var(--color-blue-primary)"/>
-      <p className="font-normal text-sm">{text}</p>
-    </div>
-  )
+const status = {
+  active: 'Ativo',
 }
 
-interface ButtonComponentProps {
-  onClick: () => void
-  text: string
-  className?: HTMLAttributes<HTMLDivElement>['className']
+const type = {
+  vehicle: 'Motor',
+  implement: 'Implemento'
 }
 
-const ButtonComponent = ({
-  onClick,
-  text,
-  className
-}: ButtonComponentProps) => {
-  return (
-    <button className={`rounded-lg flex items-center justify-center cursor-pointer ${className ?? ''}`} onClick={onClick}>
-      <p className="font-semibold text-sm">{text}</p>
-    </button>
-  )
-}
+const apiKey = process.env.NEXT_PUBLIC_API_KEY
 
 export default function Home() {
 
@@ -46,10 +30,16 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const debounce = useDebounce()
   const [isFocused, setIsFocuses] = useState(false)
+  const [data, setData] = useState<any>(null)
+  const [page, setPage] = useState(1)
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
+  })
 
   function handleInput(text: string) {
     debounce(() => {
-      console.log({text})
+      fecthVehicles(text)
     })
   }
 
@@ -59,54 +49,109 @@ export default function Home() {
       inputRef.current?.focus();
     }
   };
-  
+
+  async function fecthVehicles(filter?: string, filterTypeParam?: 'tracked' | 'others') {
+    const url = `https://develop-back-rota.rota361.com.br/recruitment/vehicles/list-with-paginate?type=${filterTypeParam || filterType}&page=${page}&perPage=20${filter ? `&filter=${filter}` : ''}`
+    try {
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      const data = await response.json();
+      if(filterTypeParam) {
+        setFilterType(filterTypeParam)
+      }
+      setData(data)
+      return response
+    } catch (error) {
+      
+    }
+  }
+
   useEffect(() => {
+    fecthVehicles()
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  const onLoad = useCallback(function callback(map) {
+    const bounds = new window.google.maps.LatLngBounds(center)
+    map.fitBounds(bounds)
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col">
       <div className="bg-blue-20 flex min-w-screen h-14 items-center pl-6">
         <p className="font-medium text-lg">Ghabriel Elias</p>
       </div>
-      <div className="flex pl-9 pr-9 min-w-screen h-20">
-        <div className="border-b-1 border-b-blue-30 w-full h-full items-center flex">
-          <div className="w-1/2 flex flex-row">
+      <div className="flex pl-9 pr-9 min-w-screen mb-10 flex-col">
+        <div className="border-b-1 border-b-blue-30 w-full h-20 gap-1 items-center justify-center flex sm:justify-between flex-col sm:flex-row">
+          <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-">
             <p className="font-semibold text-base">Lista</p>
-            <div className="flex flex-row gap-4 w-full justify-center">
+            <div className="flex flex-row gap-4 w-full sm:justify-center justify-end">
               <RadioComponent 
                 isSelected={filterType === 'tracked'}
-                onClick={() => setFilterType('tracked')}
+                onClick={() => fecthVehicles('','tracked')}
                 text="Rastreados"
               />
               <RadioComponent 
                 isSelected={filterType === 'others'}
-                onClick={() => setFilterType('others')}
+                onClick={() => fecthVehicles('','others')}
                 text="Outros"
               />
             </div>
           </div>
-          <div className="w-1/2 flex flex-row justify-end gap-4">
-            <div className={`${isFocused ?  'border-white' : 'border-grey-border'} border-1 flex flex-row items-center rounded-lg h-10 w-64 pr-2`}>
-              <input
-                placeholder="Buscar por placa ou frota"
-                className="pl-2.5 pr-2.5 h-full w-full border-none outline-none font-light text-sm placeholder-grey bg-transparent"
-                ref={inputRef}
-                onChange={(ev) => handleInput(ev.target.value)}
-                onFocus={() => {
-                  setIsFocuses(true)
-                }}
-                onBlur={() => {
-                  setIsFocuses(false)
-                }}
-              />
-              {/* <div className="rounded-sm pl-1.5 pr-1.5 text-grey-secondary border-1">
-                <p className="font-semibold text-md text-grey-secondary">B</p>
-              </div> */}
-            </div>
+          <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-4">
+            <InputComponent
+              handleInput={handleInput}
+              inputRef={inputRef}
+              isFocused={isFocused}
+              onFocus={() => setIsFocuses(true)}
+              onBlur={() => setIsFocuses(false)}
+              placeholder="Buscar por placa ou frota"
+              className="w-64"
+            />
             <ButtonComponent text="Novo" onClick={() => {}} className="bg-blue-primary h-10 w-36"/>
           </div>
+        </div>
+        <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
+          <p className="font-medium text-md">Mapa rastreador</p>
+          {isLoaded ? (
+            <GoogleMap
+              mapContainerClassName="map-container"
+              center={center}
+              zoom={10}
+              onLoad={onLoad}
+            >
+              <Marker
+                position={center}
+              > 
+                <div className="rounded-full w-10 h-10 absolute items-center justify-center flex text-yellow-500">
+                  <img src="/assets/truckIcon.svg" alt="Truck Icon" className="w-10 h-10" />
+                </div>
+              </Marker>
+            </GoogleMap>
+          ) : null}
+        </div>
+        <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1 overflow-hidden no-scrollbar overflow-y-scroll h-auto max-h-96">
+          <div className="grid grid-cols-5 h-14 border-b-1 border-blue-30 sticky top-0 bg-blue-15">
+            <TableHeaderComponent text="Placa"/>
+            <TableHeaderComponent text="Frota"/>
+            <TableHeaderComponent text="Tipo"/>
+            <TableHeaderComponent text="Modelo"/>
+            <TableHeaderComponent text="Status" hasBorder={false}/>
+          </div>
+          {data?.content?.vehicles.map((item) => (
+            <div key={item?.id} className={`grid grid-cols-5 h-10 ${item?.id === data?.content?.vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
+              <TableCell text={item?.plate}/>
+              <TableCell text={item?.fleet || '-'}/>
+              <TableCell text={type[item.type]}/>
+              <TableCell text={item?.model}/>
+              <TableCell text={item?.status} hasBorder={false} />
+            </div>
+          ))}
         </div>
       </div>
     </div>
