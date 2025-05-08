@@ -7,6 +7,7 @@ import * as BiIcons from 'react-icons/bi'
 import * as FiIcons from 'react-icons/fi'
 import * as IoIcons from 'react-icons/io'
 import * as GiIcons from 'react-icons/gi'
+import * as RiIcons from 'react-icons/ri'
 import * as Icons from 'react-icons'
 
 type IconNameProps =
@@ -18,6 +19,7 @@ type IconNameProps =
   | keyof typeof FiIcons
   | keyof typeof GiIcons
   | keyof typeof IoIcons
+  | keyof typeof RiIcons
 
 interface IconPropsExtended {
   iconName: IconNameProps
@@ -36,9 +38,10 @@ const iconLibraries = [
   BiIcons,
   FiIcons,
   GiIcons,
-  IoIcons
+  IoIcons,
+  RiIcons
 ]
-export const GlobalIcon: React.FC<IconPropsExtended> = ({
+export const IconComponent: React.FC<IconPropsExtended> = ({
   iconName,
   size,
   testId,
