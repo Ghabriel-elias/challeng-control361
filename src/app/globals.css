@@ -28,6 +28,22 @@
   margin-top: 16px;
 }
 
+.transit-container,
+.gm-title,
+.gm-style-iw-tc::after,
+.gm-style .gm-style-iw-d::-webkit-scrollbar-track, 
+.gm-style .gm-style-iw-d::-webkit-scrollbar-track-piece,
+.gm-style .gm-style-iw-c,
+.gm-style .gm-style-iw-d *,
+.gm-style .gm-style-iw-t::after { 
+  background:  var(--color-blue-15) !important;
+  color: white;
+  border: none;
+  box-shadow: none !important;
+  overflow: none !important;
+
+}
+
 @media (max-width: 640px) {
   .map-container {
     height: 300px;
