@@ -1,12 +1,16 @@
 'use client'
 import { useDebounce } from "@/hooks/useDebounce";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api'
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api'
 import { RadioComponent } from "@/components/RadioComponent";
 import { ButtonComponent } from "@/components/ButtonComponent";
 import { InputComponent } from "@/components/InputComponent";
 import { TableCell } from "@/components/TableCellComponent";
 import { TableHeaderComponent } from "@/components/TableHeaderComponent";
+import { LocationVehicle, Vehicle } from "@/interfaces/vehicleInterfaces";
+import {MarkerComponent} from "@/components/MarkerComponent";
+import { fecthVehicles } from "@/services/api";
+import { enqueueSnackbar, SnackbarProvider } from "notistack";
 
 const center = {
   lat: -3.745,
@@ -22,24 +26,30 @@ const type = {
   implement: 'Implemento'
 }
 
-const apiKey = process.env.NEXT_PUBLIC_API_KEY
-
 export default function Home() {
 
   const [filterType, setFilterType] = useState<'tracked' | 'others'>('tracked')
   const inputRef = useRef<HTMLInputElement>(null);
   const debounce = useDebounce()
   const [isFocused, setIsFocuses] = useState(false)
-  const [data, setData] = useState<any>(null)
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [vehiclesLocation, setVehiclesLocation] = useState<LocationVehicle[]>([])
+  const [selectedVehicle, setSelectedVehicle] = useState<LocationVehicle | null>(null)
   const [page, setPage] = useState(1)
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
   })
 
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  const onLoad = useCallback((mapInstance: google.maps.Map) => {
+    setMap(mapInstance);
+  }, []);
+
   function handleInput(text: string) {
     debounce(() => {
-      fecthVehicles(text)
+      fecthVehiclesTable(text)
     })
   }
 
@@ -50,39 +60,85 @@ export default function Home() {
     }
   };
 
-  async function fecthVehicles(filter?: string, filterTypeParam?: 'tracked' | 'others') {
-    const url = `https://develop-back-rota.rota361.com.br/recruitment/vehicles/list-with-paginate?type=${filterTypeParam || filterType}&page=${page}&perPage=20${filter ? `&filter=${filter}` : ''}`
+  async function fecthVehiclesTable(filter?: string, filterTypeParam?: 'tracked' | 'others') {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        }
+      const response = await fecthVehicles({
+        page,
+        filter: filter,
+        filterTypeParam: filterTypeParam || filterType
       })
-      const data = await response.json();
       if(filterTypeParam) {
         setFilterType(filterTypeParam)
       }
-      setData(data)
-      return response
+      setVehicles(response.content.vehicles)
     } catch (error) {
-      
+      enqueueSnackbar('Erro ao buscar veículos', {
+        variant: 'error',
+      })
     }
   }
 
+  async function fecthVehiclesLocation() {
+    try {
+      const response = await fecthVehicles({
+        perPage: 0
+      })
+      setVehiclesLocation(response.content.locationVehicles)
+    } catch (error) {
+      enqueueSnackbar('Erro ao buscar localização de veículos', {
+        variant: 'error',
+      })
+    }
+  }
+
+  const MapComponent = useMemo(() => {
+    return (
+      isLoaded && vehiclesLocation?.length ? (
+        <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
+          <p className="font-medium text-md">Mapa rastreador</p>
+          <GoogleMap
+            mapContainerClassName="map-container"
+            center={map?.getCenter() || { 
+              lat: Number(vehiclesLocation?.at(0)?.lat), 
+              lng: Number(vehiclesLocation?.at(0)?.lng) 
+            }}
+            zoom={5}
+            onLoad={onLoad}
+            >
+            {vehiclesLocation?.map((item) => (
+              <MarkerComponent 
+                key={item?.id + item?.lat + item?.lng}
+                item={item} 
+                onClick={() => {
+                  if(JSON.stringify(selectedVehicle) === JSON.stringify(item)) {
+                    setSelectedVehicle(null)
+                    return
+                  }
+                  setSelectedVehicle(item)
+                  if(map) {
+                    map.setZoom(15)
+                    map.setCenter({ lat: Number(item?.lat), lng: Number(item?.lng) })
+                  }
+                }} 
+                isSelected={JSON.stringify(selectedVehicle) === JSON.stringify(item)}
+              />
+            ))}
+          </GoogleMap>
+        </div>
+      ) : null
+    )
+  }, [isLoaded, vehiclesLocation, selectedVehicle, map]);
+
   useEffect(() => {
-    fecthVehicles()
+    fecthVehiclesLocation()
+    fecthVehiclesTable()
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const onLoad = useCallback(function callback(map) {
-    const bounds = new window.google.maps.LatLngBounds(center)
-    map.fitBounds(bounds)
-  }, [])
-
   return (
     <div className="flex min-h-screen flex-col">
+      <SnackbarProvider />
       <div className="bg-blue-20 flex min-w-screen h-14 items-center pl-6">
         <p className="font-medium text-lg">Ghabriel Elias</p>
       </div>
@@ -93,12 +149,12 @@ export default function Home() {
             <div className="flex flex-row gap-4 w-full sm:justify-center justify-end">
               <RadioComponent 
                 isSelected={filterType === 'tracked'}
-                onClick={() => fecthVehicles('','tracked')}
+                onClick={() => fecthVehiclesTable('','tracked')}
                 text="Rastreados"
               />
               <RadioComponent 
                 isSelected={filterType === 'others'}
-                onClick={() => fecthVehicles('','others')}
+                onClick={() => fecthVehiclesTable('','others')}
                 text="Outros"
               />
             </div>
@@ -116,25 +172,7 @@ export default function Home() {
             <ButtonComponent text="Novo" onClick={() => {}} className="bg-blue-primary h-10 w-36"/>
           </div>
         </div>
-        <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
-          <p className="font-medium text-md">Mapa rastreador</p>
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerClassName="map-container"
-              center={center}
-              zoom={10}
-              onLoad={onLoad}
-            >
-              <Marker
-                position={center}
-              > 
-                <div className="rounded-full w-10 h-10 absolute items-center justify-center flex text-yellow-500">
-                  <img src="/assets/truckIcon.svg" alt="Truck Icon" className="w-10 h-10" />
-                </div>
-              </Marker>
-            </GoogleMap>
-          ) : null}
-        </div>
+        {MapComponent}
         <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1 overflow-hidden no-scrollbar overflow-y-scroll h-auto max-h-96">
           <div className="grid grid-cols-5 h-14 border-b-1 border-blue-30 sticky top-0 bg-blue-15">
             <TableHeaderComponent text="Placa"/>
@@ -143,8 +181,8 @@ export default function Home() {
             <TableHeaderComponent text="Modelo"/>
             <TableHeaderComponent text="Status" hasBorder={false}/>
           </div>
-          {data?.content?.vehicles.map((item) => (
-            <div key={item?.id} className={`grid grid-cols-5 h-10 ${item?.id === data?.content?.vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
+          {vehicles.map((item) => (
+            <div key={item?.id} className={`grid grid-cols-5 h-10 ${item?.id === vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
               <TableCell text={item?.plate}/>
               <TableCell text={item?.fleet || '-'}/>
               <TableCell text={type[item.type]}/>
