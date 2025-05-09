@@ -5,17 +5,14 @@ import { GoogleMap, useJsApiLoader } from '@react-google-maps/api'
 import { RadioComponent } from "@/components/RadioComponent";
 import { ButtonComponent } from "@/components/ButtonComponent";
 import { InputComponent } from "@/components/InputComponent";
-import { TableCell } from "@/components/TableCellComponent";
+import { TableCell, TableCellLoading } from "@/components/TableCellComponent";
 import { TableHeaderComponent } from "@/components/TableHeaderComponent";
-import { LocationVehicle, Vehicle } from "@/interfaces/vehicleInterfaces";
+import { LocationVehicle, Vehicle, VehicleResponse } from "@/interfaces/vehicleInterfaces";
 import {MarkerComponent} from "@/components/MarkerComponent";
 import { fecthVehicles } from "@/services/api";
 import { enqueueSnackbar, SnackbarProvider } from "notistack";
-
-const center = {
-  lat: -3.745,
-  lng: -38.523,
-}
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import 'react-loading-skeleton/dist/skeleton.css'
 
 const status = {
   active: 'Ativo',
@@ -32,17 +29,17 @@ export default function Home() {
   const inputRef = useRef<HTMLInputElement>(null);
   const debounce = useDebounce()
   const [isFocused, setIsFocuses] = useState(false)
-  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [data, setData] = useState({} as VehicleResponse['content'])
   const [vehiclesLocation, setVehiclesLocation] = useState<LocationVehicle[]>([])
   const [selectedVehicle, setSelectedVehicle] = useState<LocationVehicle | null>(null)
+  const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const { isLoaded } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
   })
-
+  const tableRef = useRef<HTMLDivElement | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-
   const onLoad = useCallback((mapInstance: google.maps.Map) => {
     setMap(mapInstance);
   }, []);
@@ -60,30 +57,36 @@ export default function Home() {
     }
   };
 
-  async function fecthVehiclesTable(filter?: string, filterTypeParam?: 'tracked' | 'others') {
+  async function fecthVehiclesTable(filter?: string, filterTypeParam?: 'tracked' | 'others', page?: number) {
     try {
-      const response = await fecthVehicles({
+      setLoading(true)
+      const {content} = await fecthVehicles({
         page,
         filter: filter,
         filterTypeParam: filterTypeParam || filterType
       })
       if(filterTypeParam) {
         setFilterType(filterTypeParam)
+        setData(content)
+        return
       }
-      setVehicles(response.content.vehicles)
+      const dataVehicles = data?.vehicles?.length ? data?.vehicles : []
+      setData({...content, vehicles: [...dataVehicles, ...content?.vehicles]})
     } catch (error) {
       enqueueSnackbar('Erro ao buscar veículos', {
         variant: 'error',
       })
+    } finally {
+      setLoading(false)
     }
   }
 
   async function fecthVehiclesLocation() {
     try {
-      const response = await fecthVehicles({
+      const {content} = await fecthVehicles({
         perPage: 0
       })
-      setVehiclesLocation(response.content.locationVehicles)
+      setVehiclesLocation(content.locationVehicles)
     } catch (error) {
       enqueueSnackbar('Erro ao buscar localização de veículos', {
         variant: 'error',
@@ -93,9 +96,9 @@ export default function Home() {
 
   const MapComponent = useMemo(() => {
     return (
-      isLoaded && vehiclesLocation?.length ? (
-        <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
-          <p className="font-medium text-md">Mapa rastreador</p>
+      <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
+        <p className="font-medium text-md">Mapa rastreador</p>
+        {isLoaded && vehiclesLocation?.length ? (
           <GoogleMap
             mapContainerClassName="map-container"
             center={map?.getCenter() || { 
@@ -124,8 +127,8 @@ export default function Home() {
               />
             ))}
           </GoogleMap>
-        </div>
-      ) : null
+        ) : <Skeleton width={'100%'} className="map-container" />}
+      </div>
     )
   }, [isLoaded, vehiclesLocation, selectedVehicle, map]);
 
@@ -136,7 +139,30 @@ export default function Home() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
+  const handleScroll = () => {
+    if (tableRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = tableRef.current;
+      if (scrollTop + clientHeight >= scrollHeight && !loading) {
+        console.log(data?.totalPages)
+        if(page >= data?.totalPages) return
+        setPage((prevPage) => prevPage + 1);
+        fecthVehiclesTable('',filterType, page + 1)
+      }
+    }
+}
+
+  useEffect(() => {
+    const tableElement = tableRef.current;
+    if(!tableElement) return
+    tableElement?.addEventListener('scroll', handleScroll);
+    
+    return () => {
+      tableElement?.removeEventListener('scroll', handleScroll);
+    };
+  }, [loading, page]);
+
   return (
+    <SkeletonTheme baseColor="var(--color-grey-primary)" highlightColor="var(--color-grey-secondary)" >
     <div className="flex min-h-screen flex-col">
       <SnackbarProvider />
       <div className="bg-blue-20 flex min-w-screen h-14 items-center pl-6">
@@ -173,25 +199,39 @@ export default function Home() {
           </div>
         </div>
         {MapComponent}
-        <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1 overflow-hidden no-scrollbar overflow-y-scroll h-auto max-h-96">
-          <div className="grid grid-cols-5 h-14 border-b-1 border-blue-30 sticky top-0 bg-blue-15">
+        <div ref={tableRef} className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1 overflow-hidden no-scrollbar overflow-y-scroll h-auto max-h-96">
+          <div className="grid grid-cols-5 h-14 border-b-1 z-50 border-blue-30 sticky top-0 bg-blue-15">
             <TableHeaderComponent text="Placa"/>
             <TableHeaderComponent text="Frota"/>
             <TableHeaderComponent text="Tipo"/>
             <TableHeaderComponent text="Modelo"/>
             <TableHeaderComponent text="Status" hasBorder={false}/>
           </div>
-          {vehicles.map((item) => (
-            <div key={item?.id} className={`grid grid-cols-5 h-10 ${item?.id === vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
-              <TableCell text={item?.plate}/>
-              <TableCell text={item?.fleet || '-'}/>
-              <TableCell text={type[item.type]}/>
-              <TableCell text={item?.model}/>
-              <TableCell text={item?.status} hasBorder={false} />
-            </div>
-          ))}
+          {data?.vehicles?.length ? data?.vehicles.map((item) => (
+            <>
+              <div key={item?.id} className={`grid grid-cols-5 h-10 ${item?.id === data?.vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
+                <TableCell text={item?.plate}/>
+                <TableCell text={item?.fleet || '-'}/>
+                <TableCell text={type[item.type]}/>
+                <TableCell text={item?.model}/>
+                <TableCell text={item?.status} hasBorder={false} />
+              </div>
+            </>
+          )) : null}
+          {loading ? (
+            Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="grid grid-cols-5 h-10 border-t-1 border-blue-30">
+                <TableCellLoading />
+                <TableCellLoading />
+                <TableCellLoading />
+                <TableCellLoading />
+                <TableCellLoading hasBorder={false} />
+              </div>
+            ))
+          ) : null}
         </div>
       </div>
     </div>
+    </SkeletonTheme>
   );
 }
