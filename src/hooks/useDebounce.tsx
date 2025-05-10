@@ -1,3 +1,4 @@
+"use client";
 import { useRef } from 'react';
 
 export function useDebounce(delay = 1000) {
