@@ -113,7 +113,7 @@ export function HomeView(props: HomeViewProps) {
           <ButtonComponent text="Novo" onClick={() => {}} className="bg-blue-primary h-10 w-36"/>
         </div>
       </div>
-      <div ref={tableRef} className="pl-9 pr-4 pb-9 overflow-y-auto max-h-[calc(100vh-136px)]">
+      <div ref={tableRef} className="pl-9 pr-5 pb-9 overflow-y-auto max-h-[calc(100vh-136px)]">
         {MemoizedMap}
         <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1">
           <div className="grid grid-cols-5 h-14 border-b-1 z-50 rounded-t-2xl border-blue-30 sticky -top-1 bg-blue-15">

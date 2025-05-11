@@ -11,16 +11,6 @@
   --color-grey-secondary: #C8C8C8;
 }
 
-@layer utilities {
-  .no-scrollbar::-webkit-scrollbar {
-   display: none;
-  }
-  .no-scrollbar {
-   -ms-overflow-style: none;
-   scrollbar-width: none;
-  }
-}
-
 .map-container {
   height: 450px;
   width: 100%;
@@ -51,8 +41,7 @@
 }
 
 ::-webkit-scrollbar {
-  width: 20px;
-  height: 20px;
+  width: 16px;
 }
 
 ::-webkit-scrollbar-track {
