@@ -4,8 +4,6 @@ import { ButtonComponent } from "@/components/ButtonComponent";
 import { InputComponent } from "@/components/InputComponent";
 import { TableCell, TableCellLoading } from "@/components/TableCellComponent";
 import { TableHeaderComponent } from "@/components/TableHeaderComponent";
-import { SnackbarProvider } from "notistack";
-import { SkeletonTheme } from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useHomeModel } from "./model";
 import { useEffect, useMemo } from "react";
@@ -79,8 +77,7 @@ export function HomeView(props: HomeViewProps) {
   }, [loading, page]);
 
   return (
-    <SkeletonTheme baseColor="var(--color-grey-primary)" highlightColor="var(--color-grey-secondary)" >
-      <SnackbarProvider />
+    <>
       <div className="bg-blue-20 flex h-14 items-center pl-6">
         <p className="font-medium text-lg">Ghabriel Elias</p>
       </div>
@@ -149,6 +146,6 @@ export function HomeView(props: HomeViewProps) {
           ) : null}
         </div>
       </div>
-    </SkeletonTheme>
+    </>
   );
 }
