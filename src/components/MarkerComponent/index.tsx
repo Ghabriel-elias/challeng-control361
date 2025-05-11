@@ -1,9 +1,8 @@
 import { InfoWindow, OverlayView } from "@react-google-maps/api"
-import { TruckIcon } from "../../../public/assets"
 import { LocationVehicle } from "@/interfaces/vehicleInterfaces"
-import { getRandomDarkHexColor } from "@/utils/getRandomDarkHexColor";
 import dayjs from "dayjs";
 import { IconComponent } from "../IconComponent";
+import { getRandomDarkHexColor } from "@/utils/getRandomDarkHexColor";
 
 interface MarkerComponentProps {
   item: LocationVehicle;
@@ -12,6 +11,9 @@ interface MarkerComponentProps {
 }
 
 export const MarkerComponent: React.FC<MarkerComponentProps> = ({ item, onClick, isSelected }) => {
+  
+  const bgColor = getRandomDarkHexColor();
+  
   return (
     <OverlayView
       mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
@@ -21,8 +23,15 @@ export const MarkerComponent: React.FC<MarkerComponentProps> = ({ item, onClick,
       }}
     >
       <>
-      <div className={`absolute items-center justify-center flex cursor-pointer`} style={{color: getRandomDarkHexColor()}} onClick={onClick}>
-        <TruckIcon />
+      <div
+        onClick={onClick}
+        className="relative w-10 h-10 rounded-full flex items-center justify-center"
+        style={{ background: bgColor }}>
+        <IconComponent iconName="RiTruckLine" size={24} color="#fff" />
+        <div
+          className="absolute bottom-[-4px] left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px]"
+          style={{ borderTopColor: bgColor }}
+        />
       </div>
       {isSelected ? (
         <InfoWindow 
