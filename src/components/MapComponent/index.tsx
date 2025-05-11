@@ -1,10 +1,9 @@
 import Skeleton from "react-loading-skeleton";
 import { MarkerComponent } from "../MarkerComponent";
-import { GoogleMap } from "@react-google-maps/api";
+import { GoogleMap, useJsApiLoader } from "@react-google-maps/api";
 import { LocationVehicle } from "@/interfaces/vehicleInterfaces";
 
 interface MapComponentProps {
-  isLoaded: boolean;
   loading: boolean;
   vehiclesLocation: LocationVehicle[];
   map: google.maps.Map | null;
@@ -14,7 +13,6 @@ interface MapComponentProps {
 }
 
 export const MapComponent: React.FC<MapComponentProps> = ({
-  isLoaded,
   vehiclesLocation,
   map,
   onLoad,
@@ -22,6 +20,12 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   selectedVehicle,
   loading,
 }) => {
+  
+  const { isLoaded } = useJsApiLoader({
+    id: 'google-map-script',
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
+  })
+
   return (
     <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
       <p className="font-medium text-md">Mapa rastreador</p>
@@ -46,7 +50,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
                 selectedVehicle?.id === item?.id &&
                 selectedVehicle?.lat === item?.lat &&
                 selectedVehicle?.lng === item?.lng
-              } 
+              }
             />
           ))}
         </GoogleMap>

@@ -17,17 +17,12 @@ export const useHomeModel = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<LocationVehicle | null>(null)
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
-  const { isLoaded } = useJsApiLoader({
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY || '',
-  })
   const tableRef = useRef<HTMLDivElement | null>(null);
   const timerUpdateMapRef = useRef<NodeJS.Timeout>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
   function onLoad(mapInstance: google.maps.Map) {
-    console.log({mapInstance})
-    // setMap(mapInstance);
+    setMap(mapInstance);
   }
 
   function handleInput(text: string) {
@@ -121,7 +116,6 @@ export const useHomeModel = () => {
     handleScroll,
     page,
     handleClickOnTruck,
-    isLoaded,
     vehiclesLocation,
     map,
     onLoad,

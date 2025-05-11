@@ -40,7 +40,6 @@ export function HomeView(props: HomeViewProps) {
     handleScroll,
     page,
     handleClickOnTruck,
-    isLoaded,
     map,
     onLoad,
     selectedVehicle,
@@ -51,7 +50,6 @@ export function HomeView(props: HomeViewProps) {
   const MemoizedMap = useMemo(() => {
     return (
       <MapComponent
-        isLoaded={isLoaded}
         map={map}
         onLoad={onLoad}
         vehiclesLocation={vehiclesLocation}
@@ -60,7 +58,7 @@ export function HomeView(props: HomeViewProps) {
         loading={loading}
       />
     );
-  }, [isLoaded, vehiclesLocation, selectedVehicle, map, loading]);
+  }, [vehiclesLocation, selectedVehicle, map, loading]);
 
   useEffect(() => {
     startPoolingMap()
@@ -71,10 +69,10 @@ export function HomeView(props: HomeViewProps) {
   useEffect(() => {
     const tableElement = tableRef.current;
     if(!tableElement) return
-    tableElement?.addEventListener('scroll', handleScroll);
+    tableElement.addEventListener('scroll', handleScroll);
     
     return () => {
-      tableElement?.removeEventListener('scroll', handleScroll);
+      tableElement.removeEventListener('scroll', handleScroll);
     };
   }, [loading, page]);
 
