@@ -5,6 +5,7 @@ import { LocationVehicle } from "@/interfaces/vehicleInterfaces";
 
 interface MapComponentProps {
   isLoaded: boolean;
+  loading: boolean;
   vehiclesLocation: LocationVehicle[];
   map: google.maps.Map | null;
   onLoad: (map: google.maps.Map) => void;
@@ -19,6 +20,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   onLoad,
   handleClickOnTruck,
   selectedVehicle,
+  loading
 }) => {
   return (
     <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
@@ -42,7 +44,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             />
           ))}
         </GoogleMap>
-      ) : <Skeleton width={'100%'} className="map-container" />}
+      ) : loading ? <Skeleton width={'100%'} className="map-container" /> : null}
     </div>
   )
 }

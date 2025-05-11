@@ -57,9 +57,10 @@ export function HomeView(props: HomeViewProps) {
         vehiclesLocation={vehiclesLocation}
         selectedVehicle={selectedVehicle}
         handleClickOnTruck={handleClickOnTruck}
+        loading={loading}
       />
     );
-  }, [isLoaded, vehiclesLocation, selectedVehicle, map]);
+  }, [isLoaded, vehiclesLocation, selectedVehicle, map, loading]);
 
   useEffect(() => {
     startPoolingMap()
