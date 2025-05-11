@@ -35,16 +35,18 @@ export const MarkerComponent: React.FC<MarkerComponentProps> = ({ item, onClick,
             pixelOffset: new window.google.maps.Size(20, -10),
           }}
         >
-          <div className="flex flex-col gap-1 p-1 w-48 items-center">
-            <button className="absolute right-1.5 top-2 p-0.5 cursor-pointer" onClick={onClick}>
+          <div className="flex flex-row gap-1 w-full">
+            <div>
+              <p className="font-medium text-xs">Placa {item?.plate}</p>
+              <p className="font-medium text-xs">Frota {item?.fleet}</p>
+              <p className="font-medium text-xs">{dayjs(item?.createdAt)?.format('DD/MM/YYYY [-] HH:mm')}</p>
+              <a className="cursor-pointer" href={`https://www.google.com/maps/search/?api=1&query=${item?.lat},${item?.lng}`} target="_blank" rel="noreferrer">
+                <p className="font-medium text-xs underline">{`${item?.lat}, ${item?.lng}`}</p>
+              </a>
+            </div>
+            <button className="flex justify-end cursor-pointer h-6 w-6" onClick={onClick}>
               <IconComponent iconName="IoMdClose" size={16}/>
             </button>
-            <p className="font-medium text-xs">Placa {item?.plate}</p>
-            <p className="font-medium text-xs">Frota {item?.fleet}</p>
-            <p className="font-medium text-xs">{dayjs(item?.createdAt)?.format('DD/MM/YYYY [-] HH:mm')}</p>
-            <a className="cursor-pointer" href={`https://www.google.com/maps/search/?api=1&query=${item?.lat},${item?.lng}`} target="_blank" rel="noreferrer">
-              <p className="font-medium text-xs underline">{`${item?.lat}, ${item?.lng}`}</p>
-            </a>
           </div>
         </InfoWindow>
       ) : null}
