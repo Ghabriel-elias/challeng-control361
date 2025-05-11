@@ -29,6 +29,8 @@ interface IconPropsExtended {
   className?: HTMLAttributes<HTMLDivElement>['className']
 }
 
+type IconLibType = Record<string, React.ComponentType<Icons.IconBaseProps>>
+
 
 const iconLibraries = [
   FaIcons,
@@ -50,8 +52,8 @@ export const IconComponent: React.FC<IconPropsExtended> = ({
 }) => {
 
   const findIconLibrary = (): React.ComponentType<Icons.IconBaseProps> | null => {
-    for (const IconLib of iconLibraries) {
-      if (IconLib && (IconLib as any)[iconName]) {
+    for (const IconLib of iconLibraries as IconLibType[]) {
+      if (IconLib && IconLib[iconName]) {
         return IconLib[iconName]
       }
     }
