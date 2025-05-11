@@ -35,9 +35,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             }
           }
           zoom={5}
-          onLoad={onLoad}
-        >
-          {/* {vehiclesLocation?.map((item) => (
+          onLoad={onLoad}>
+          {vehiclesLocation?.map((item) => (
             <MarkerComponent
               key={item?.id + item?.lat + item?.lng}
               item={item}
@@ -48,7 +47,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
                 selectedVehicle?.lng === item?.lng
               } 
             />
-          ))} */}
+          ))}
         </GoogleMap>
       ) : loading || !isLoaded ? (
         <Skeleton width={"100%"} className="map-container" />
