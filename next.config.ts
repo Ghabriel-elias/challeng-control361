@@ -1,11 +1,10 @@
 export default {
-  experimental: {
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js'
-        }
+  output: 'export', 
+  turbopack: {
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js'
       }
     }
   }
