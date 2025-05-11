@@ -1,15 +1,14 @@
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  webpack(config: { module: { rules: { test: RegExp; use: { loader: string; options: { typescript: boolean; icon: boolean; }; }[]; }[]; }; }) {
+  webpack(config: { module: { rules: { test: RegExp; use: { loader: string; options: { native: boolean }; }[]; }[]; }; }) {
     config.module.rules.push({
       test: /\.svg$/,
       use: [
         {
           loader: "@svgr/webpack",
           options: {
-            typescript: true,
-            icon: true,
+            native: true,
           },
         },
       ],
