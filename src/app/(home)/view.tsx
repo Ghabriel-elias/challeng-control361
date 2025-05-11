@@ -132,7 +132,7 @@ export function HomeView(props: HomeViewProps) {
             </div>
           )) : !loading ? (
             <div className="flex flex-col items-center justify-center h-20">
-              <p className="font-medium text-md">{inputRef?.current?.value?.length ? 'Nenhum veículo encontrado para esses parâmetros' : 'Sem veículos para exibir'}</p>
+              <p className="font-medium text-md text-center">{inputRef?.current?.value?.length ? 'Nenhum veículo encontrado para esses parâmetros' : 'Sem veículos para exibir'}</p>
             </div>
           ) : null}
           {loading ? (
