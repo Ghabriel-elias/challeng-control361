@@ -12,19 +12,23 @@ export const TableCell: React.FC<TableCellProps> = ({ text, hasBorder = true }) 
       className={`flex justify-center items-center ${
         hasBorder ? 'border-r-1 border-blue-30' : ''
       } w-full`}>
-        <p className="font-normal text-grey-secondary text-sm">{text}</p>
+        <p className="font-normal text-grey-secondary text-sm truncate">{text}</p>
     </div>
   );
 };
 
 export const TableCellLoading: React.FC<TableCellProps> = ({ hasBorder = true }) => {
   return (
-    <div
-      className={`flex justify-center items-center ${
+    <div className={`flex justify-center items-center ${
         hasBorder ? 'border-r-1 border-blue-30' : ''
       } w-full`}>
-        <Skeleton height={14} width={80} />
+      <div className='w-2/4'>
+        <Skeleton 
+          height={14} 
+          style={{ width: '100%' }} 
+          className='w-2/4'
+        />
+      </div>
     </div>
   );
 };
-
