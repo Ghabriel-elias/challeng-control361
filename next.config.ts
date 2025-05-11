@@ -4,7 +4,7 @@ export default {
     rules: {
       '*.svg': {
         loaders: ['@svgr/webpack'],
-        as: '*.js'
+        as: '*.tsx'
       }
     }
   }
