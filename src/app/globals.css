@@ -69,5 +69,5 @@ body {
   background: var(--color-blue-10);
   color: white;
   font-family: 'Poppins', Arial, Helvetica, sans-serif;
-  overflow-x: hidden;
+  overflow: hidden;
 }
