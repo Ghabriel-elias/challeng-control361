@@ -44,7 +44,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
             />
           ))}
         </GoogleMap>
-      ) : loading ? <Skeleton width={'100%'} className="map-container" /> : null}
+      ) : loading || !isLoaded ? <Skeleton width={'100%'} className="map-container" /> : null}
     </div>
   )
 }
