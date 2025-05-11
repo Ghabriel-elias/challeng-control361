@@ -1,19 +1,12 @@
-export default {
-  output: 'export', 
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.tsx'
-      }
-    }
-  },
-  webpack: (config: { module: { rules: { test: RegExp; use: { loader: string; options: { typescript: boolean; icon: boolean; }; }[]; }[]; }; }) => {
+
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  webpack(config: { module: { rules: { test: RegExp; use: { loader: string; options: { typescript: boolean; icon: boolean; }; }[]; }[]; }; }) {
     config.module.rules.push({
-      test: /\.svg$/, 
+      test: /\.svg$/,
       use: [
         {
-          loader: '@svgr/webpack',
+          loader: "@svgr/webpack",
           options: {
             typescript: true,
             icon: true,
@@ -21,7 +14,18 @@ export default {
         },
       ],
     });
-
     return config;
   },
-}
+  experimental: {
+    turbo: {
+      rules: {
+        "*.svg": {
+          loaders: ["@svgr/webpack"],
+          as: "*.ts",
+        },
+      },
+    },
+  },
+};
+
+export default nextConfig;

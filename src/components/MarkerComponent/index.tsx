@@ -22,8 +22,7 @@ export const MarkerComponent: React.FC<MarkerComponentProps> = ({ item, onClick,
     >
       <>
       <div className={`absolute items-center justify-center flex cursor-pointer`} style={{color: getRandomDarkHexColor()}} onClick={onClick}>
-        {/* <TruckIcon /> */}
-        <img src={'./assets/truckIcon.svg'} />
+        <TruckIcon />
       </div>
       {isSelected ? (
         <InfoWindow 
