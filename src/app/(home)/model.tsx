@@ -32,27 +32,22 @@ export const useHomeModel = () => {
   function handleInput(text: string) {
     debounce(() => {
       fecthVehiclesTable(filterType, page, text)
+      setPage(1)
     })
   }
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.code === 'KeyB') {
-      e.preventDefault(); 
-      inputRef.current?.focus();
-    }
-  };
 
   async function fecthVehiclesTable(filterTypeParam?: 'tracked' | 'others' | null, page?: number, filter?: string) {
     try {
       setLoading(true)
       const {content} = await fecthVehicles({
         page,
-        filter: filter,
+        filter: filter || inputRef?.current?.value,
         filterTypeParam: filterTypeParam || filterType
       })
       if(filterTypeParam) {
         setFilterType(filterTypeParam)
         setData(content)
+        setPage(1)
         return
       }
       const dataVehicles = data?.vehicles?.length ? data?.vehicles : []
@@ -122,7 +117,6 @@ export const useHomeModel = () => {
     loading,
     isFocused,
     fecthVehiclesLocation,
-    handleKeyDown,
     handleScroll,
     page,
     handleClickOnTruck,

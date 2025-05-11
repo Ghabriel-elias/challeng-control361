@@ -37,7 +37,6 @@ export function HomeView(props: HomeViewProps) {
     fecthVehiclesTable,
     tableRef,
     fecthVehiclesLocation,
-    handleKeyDown,
     handleScroll,
     page,
     handleClickOnTruck,
@@ -66,8 +65,6 @@ export function HomeView(props: HomeViewProps) {
     startPoolingMap()
     fecthVehiclesLocation()
     fecthVehiclesTable()
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   useEffect(() => {
@@ -82,44 +79,43 @@ export function HomeView(props: HomeViewProps) {
 
   return (
     <SkeletonTheme baseColor="var(--color-grey-primary)" highlightColor="var(--color-grey-secondary)" >
-    <div className="flex min-h-screen flex-col">
       <SnackbarProvider />
-      <div className="bg-blue-20 flex min-w-screen h-14 items-center pl-6">
+      <div className="bg-blue-20 flex h-14 items-center pl-6">
         <p className="font-medium text-lg">Ghabriel Elias</p>
       </div>
-      <div className="flex pl-9 pr-9 min-w-screen mb-10 flex-col">
-        <div className="border-b-1 border-b-blue-30 w-full h-20 gap-1 items-center justify-center flex sm:justify-between flex-col sm:flex-row">
-          <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-">
-            <p className="font-semibold text-base">Lista</p>
-            <div className="flex flex-row gap-4 w-full sm:justify-center justify-end">
-              <RadioComponent 
-                isSelected={filterType === 'tracked'}
-                onClick={() => fecthVehiclesTable('tracked')}
-                text="Rastreados"
-              />
-              <RadioComponent 
-                isSelected={filterType === 'others'}
-                onClick={() => fecthVehiclesTable('others')}
-                text="Outros"
-              />
-            </div>
-          </div>
-          <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-4">
-            <InputComponent
-              handleInput={handleInput}
-              inputRef={inputRef}
-              isFocused={isFocused}
-              onFocus={() => setIsFocuses(true)}
-              onBlur={() => setIsFocuses(false)}
-              placeholder="Buscar por placa ou frota"
-              className="w-64"
+      <div className="border-b-1 pl-9 pr-9 bg-blue-10 border-b-blue-30 w-full sm:h-20 h-24 gap-2 items-center justify-center flex sm:justify-between flex-col sm:flex-row">
+        <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-">
+          <p className="font-semibold text-base">Lista</p>
+          <div className="flex flex-row gap-4 w-full sm:justify-center justify-end">
+            <RadioComponent 
+              isSelected={filterType === 'tracked'}
+              onClick={() => fecthVehiclesTable('tracked')}
+              text="Rastreados"
             />
-            <ButtonComponent text="Novo" onClick={() => {}} className="bg-blue-primary h-10 w-36"/>
+            <RadioComponent 
+              isSelected={filterType === 'others'}
+              onClick={() => fecthVehiclesTable('others')}
+              text="Outros"
+            />
           </div>
         </div>
+        <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-4">
+          <InputComponent
+            handleInput={handleInput}
+            inputRef={inputRef}
+            isFocused={isFocused}
+            onFocus={() => setIsFocuses(true)}
+            onBlur={() => setIsFocuses(false)}
+            placeholder="Buscar por placa ou frota"
+            className="w-64"
+          />
+          <ButtonComponent text="Novo" onClick={() => {}} className="bg-blue-primary h-10 w-36"/>
+        </div>
+      </div>
+      <div ref={tableRef} className="pl-9 pr-9 pb-9 overflow-y-scroll max-h-[calc(100vh-136px)]">
         {MemoizedMap}
-        <div ref={tableRef} className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1 overflow-hidden no-scrollbar overflow-y-scroll h-auto max-h-96">
-          <div className="grid grid-cols-5 h-14 border-b-1 z-50 border-blue-30 sticky top-0 bg-blue-15">
+        <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1">
+          <div className="grid grid-cols-5 h-14 border-b-1 z-50 rounded-t-2xl border-blue-30 sticky -top-1 bg-blue-15">
             <TableHeaderComponent text="Placa"/>
             <TableHeaderComponent text="Frota"/>
             <TableHeaderComponent text="Tipo"/>
@@ -134,7 +130,11 @@ export function HomeView(props: HomeViewProps) {
               <TableCell text={item?.model}/>
               <TableCell text={status[item?.status]} hasBorder={false} />
             </div>
-          )) : null}
+          )) : !loading ? (
+            <div className="flex flex-col items-center justify-center h-20">
+              <p className="font-medium text-md">{inputRef?.current?.value?.length ? 'Nenhum veículo encontrado para esses parâmetros' : 'Sem veículos para exibir'}</p>
+            </div>
+          ) : null}
           {loading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="grid grid-cols-5 h-10 border-t-1 border-blue-30">
@@ -148,7 +148,6 @@ export function HomeView(props: HomeViewProps) {
           ) : null}
         </div>
       </div>
-    </div>
     </SkeletonTheme>
   );
 }
