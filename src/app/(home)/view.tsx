@@ -114,15 +114,7 @@ export function HomeView(props: HomeViewProps) {
         </div>
       </div>
       <div ref={tableRef} className="pl-9 pr-4 pb-9 overflow-y-auto max-h-[calc(100vh-136px)]">
-        <MapComponent
-          isLoaded={isLoaded}
-          map={map}
-          onLoad={onLoad}
-          vehiclesLocation={vehiclesLocation}
-          selectedVehicle={selectedVehicle}
-          handleClickOnTruck={handleClickOnTruck}
-          loading={loading}
-        />
+        {MemoizedMap}
         <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1">
           <div className="grid grid-cols-5 h-14 border-b-1 z-50 rounded-t-2xl border-blue-30 sticky -top-1 bg-blue-15">
             <TableHeaderComponent text="Placa"/>

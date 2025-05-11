@@ -26,7 +26,8 @@ export const useHomeModel = () => {
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
   function onLoad(mapInstance: google.maps.Map) {
-    setMap(mapInstance);
+    console.log({mapInstance})
+    // setMap(mapInstance);
   }
 
   function handleInput(text: string) {
