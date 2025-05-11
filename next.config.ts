@@ -8,7 +8,7 @@ export default {
       }
     }
   },
-  webpack: (config) => {
+  webpack: (config: { module: { rules: { test: RegExp; use: { loader: string; options: { typescript: boolean; icon: boolean; }; }[]; }[]; }; }) => {
     config.module.rules.push({
       test: /\.svg$/, 
       use: [
