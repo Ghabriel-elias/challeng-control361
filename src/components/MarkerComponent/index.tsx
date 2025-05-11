@@ -3,6 +3,7 @@ import { LocationVehicle } from "@/interfaces/vehicleInterfaces"
 import dayjs from "dayjs";
 import { IconComponent } from "../IconComponent";
 import { getRandomDarkHexColor } from "@/utils/getRandomDarkHexColor";
+import { memo, useMemo } from "react";
 
 interface MarkerComponentProps {
   item: LocationVehicle;
@@ -11,9 +12,9 @@ interface MarkerComponentProps {
 }
 
 export const MarkerComponent: React.FC<MarkerComponentProps> = ({ item, onClick, isSelected }) => {
-  
-  const bgColor = getRandomDarkHexColor();
-  
+
+  const bgColor = useMemo(() => getRandomDarkHexColor(), []);
+
   return (
     <OverlayView
       mapPaneName={OverlayView.OVERLAY_MOUSE_TARGET}
