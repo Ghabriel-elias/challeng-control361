@@ -1,6 +1,6 @@
-import Skeleton from "react-loading-skeleton"
-import { MarkerComponent } from "../MarkerComponent"
-import { GoogleMap } from "@react-google-maps/api"
+import Skeleton from "react-loading-skeleton";
+import { MarkerComponent } from "../MarkerComponent";
+import { GoogleMap } from "@react-google-maps/api";
 import { LocationVehicle } from "@/interfaces/vehicleInterfaces";
 
 interface MapComponentProps {
@@ -20,31 +20,40 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   onLoad,
   handleClickOnTruck,
   selectedVehicle,
-  loading
+  loading,
 }) => {
   return (
     <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
       <p className="font-medium text-md">Mapa rastreador</p>
-      {isLoaded && vehiclesLocation?.length ? (
+      {isLoaded ? (
         <GoogleMap
           mapContainerClassName="map-container"
-          center={map?.getCenter() || { 
-            lat: Number(vehiclesLocation?.at(0)?.lat), 
-            lng: Number(vehiclesLocation?.at(0)?.lng) 
-          }}
+          center={
+            map?.getCenter() || {
+              lat: Number(vehiclesLocation?.at(0)?.lat),
+              lng: Number(vehiclesLocation?.at(0)?.lng),
+            }
+          }
           zoom={5}
-          onLoad={onLoad}
-          >
-          {vehiclesLocation?.map((item) => (
-            <MarkerComponent 
+          onLoad={onLoad}>
+          {vehiclesLocation?.length && vehiclesLocation?.map((item) => (
+            <MarkerComponent
               key={item?.id + item?.lat + item?.lng}
-              item={item} 
-              onClick={() => handleClickOnTruck(item)} 
-              isSelected={JSON.stringify(selectedVehicle) === JSON.stringify(item)}
+              item={item}
+              onClick={() => handleClickOnTruck(item)}
+              isSelected={
+                selectedVehicle?.id === item?.id &&
+                selectedVehicle?.lat === item?.lat &&
+                selectedVehicle?.lng === item?.lng
+              } 
             />
           ))}
         </GoogleMap>
-      ) : loading || !isLoaded ? <Skeleton width={'100%'} className="map-container" /> : null}
+      ) : loading ? (
+        <div data-testid="skeleton"> 
+          <Skeleton width={"100%"} className="map-container" />
+        </div>
+      ) : null}
     </div>
-  )
-}
+  );
+};

@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 export function useDebounce(delay = 1000) {
   const timerId = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -12,6 +12,14 @@ export function useDebounce(delay = 1000) {
       callback();
     }, delay);
   }
+
+  useEffect(() => {
+    return () => {
+      if (timerId.current) {
+        clearTimeout(timerId.current); 
+      }
+    };
+  }, []);
 
   return debounceFn;
 }

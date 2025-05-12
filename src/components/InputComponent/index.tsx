@@ -2,7 +2,6 @@ import { HTMLAttributes, RefObject } from "react"
 
 interface InputComponentProps {
   isFocused: boolean
-  inputRef: RefObject<HTMLInputElement | null>
   handleInput: (text: string) => void
   onFocus?: () => void
   onBlur?: () => void
@@ -12,7 +11,6 @@ interface InputComponentProps {
 
 export const InputComponent: React.FC<InputComponentProps> = ({
   isFocused,
-  inputRef,
   handleInput,
   onFocus,
   onBlur,
@@ -24,7 +22,6 @@ export const InputComponent: React.FC<InputComponentProps> = ({
       <input
         placeholder={placeholder}
         className="pl-2.5 pr-2.5 h-full w-full border-none outline-none font-light text-sm placeholder-grey bg-transparent"
-        ref={inputRef}
         onChange={(ev) => handleInput(ev.target.value)}
         onFocus={onFocus}
         onBlur={onBlur}

@@ -4,8 +4,6 @@ import { ButtonComponent } from "@/components/ButtonComponent";
 import { InputComponent } from "@/components/InputComponent";
 import { TableCell, TableCellLoading } from "@/components/TableCellComponent";
 import { TableHeaderComponent } from "@/components/TableHeaderComponent";
-import { SnackbarProvider } from "notistack";
-import { SkeletonTheme } from "react-loading-skeleton";
 import 'react-loading-skeleton/dist/skeleton.css'
 import { useHomeModel } from "./model";
 import { useEffect, useMemo } from "react";
@@ -28,15 +26,11 @@ type HomeViewProps = ReturnType<typeof useHomeModel>
 export function HomeView(props: HomeViewProps) {
   const {
     filterType,
-    inputRef,
     isFocused,
     setIsFocuses,
     handleInput,
     data,
-    loading,
-    fecthVehiclesTable,
     tableRef,
-    fecthVehiclesLocation,
     handleScroll,
     page,
     handleClickOnTruck,
@@ -44,7 +38,10 @@ export function HomeView(props: HomeViewProps) {
     map,
     onLoad,
     selectedVehicle,
-    vehiclesLocation,
+    isFetching,
+    handleRadio,
+    vehicles,
+    inputValue,
     startPoolingMap
   } = props
 
@@ -54,19 +51,17 @@ export function HomeView(props: HomeViewProps) {
         isLoaded={isLoaded}
         map={map}
         onLoad={onLoad}
-        vehiclesLocation={vehiclesLocation}
+        vehiclesLocation={data?.locationVehicles || []}
         selectedVehicle={selectedVehicle}
         handleClickOnTruck={handleClickOnTruck}
-        loading={loading}
+        loading={isFetching}
       />
     );
-  }, [isLoaded, vehiclesLocation, selectedVehicle, map, loading]);
+  }, [isLoaded, data, selectedVehicle, map, isFetching]);
 
   useEffect(() => {
     startPoolingMap()
-    fecthVehiclesLocation()
-    fecthVehiclesTable()
-  }, []);
+  }, [])
 
   useEffect(() => {
     const tableElement = tableRef.current;
@@ -76,11 +71,10 @@ export function HomeView(props: HomeViewProps) {
     return () => {
       tableElement?.removeEventListener('scroll', handleScroll);
     };
-  }, [loading, page]);
+  }, [isFetching, page, data]);
 
   return (
-    <SkeletonTheme baseColor="var(--color-grey-primary)" highlightColor="var(--color-grey-secondary)" >
-      <SnackbarProvider />
+    <>
       <div className="bg-blue-20 flex h-14 items-center pl-6">
         <p className="font-medium text-lg">Ghabriel Elias</p>
       </div>
@@ -90,12 +84,12 @@ export function HomeView(props: HomeViewProps) {
           <div className="flex flex-row gap-4 w-full sm:justify-center justify-end">
             <RadioComponent 
               isSelected={filterType === 'tracked'}
-              onClick={() => fecthVehiclesTable('tracked')}
+              onClick={() => handleRadio('tracked')}
               text="Rastreados"
             />
             <RadioComponent 
               isSelected={filterType === 'others'}
-              onClick={() => fecthVehiclesTable('others')}
+              onClick={() => handleRadio('others')}
               text="Outros"
             />
           </div>
@@ -103,7 +97,6 @@ export function HomeView(props: HomeViewProps) {
         <div className="sm:w-1/2 w-full flex flex-row sm:justify-end justify-between gap-4">
           <InputComponent
             handleInput={handleInput}
-            inputRef={inputRef}
             isFocused={isFocused}
             onFocus={() => setIsFocuses(true)}
             onBlur={() => setIsFocuses(false)}
@@ -113,8 +106,8 @@ export function HomeView(props: HomeViewProps) {
           <ButtonComponent text="Novo" onClick={() => {}} className="bg-blue-primary h-10 w-36"/>
         </div>
       </div>
-      <div ref={tableRef} className="pl-9 pr-4 pb-9 overflow-y-auto max-h-[calc(100vh-136px)]">
-        {/* {MemoizedMap} */}
+      <div ref={tableRef} className="pl-9 pr-5 pb-9 overflow-y-auto max-h-[calc(100vh-136px)]">
+        {MemoizedMap}
         <div className="mt-6 bg-blue-15 rounded-2xl border-blue-30 border-1">
           <div className="grid grid-cols-5 h-14 border-b-1 z-50 rounded-t-2xl border-blue-30 sticky -top-1 bg-blue-15">
             <TableHeaderComponent text="Placa"/>
@@ -123,20 +116,20 @@ export function HomeView(props: HomeViewProps) {
             <TableHeaderComponent text="Modelo"/>
             <TableHeaderComponent text="Status" hasBorder={false}/>
           </div>
-          {data?.vehicles?.length ? data?.vehicles.map((item, index) => (
-            <div key={item?.id + index} className={`grid grid-cols-5 h-10 ${item?.id === data?.vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
+          {vehicles?.length ? vehicles.map((item, index) => (
+            <div key={item?.id + index} className={`grid grid-cols-5 h-10 ${item?.id === vehicles?.at(-1)?.id ? '' : 'border-b-1'} border-blue-30`}>
               <TableCell text={item?.plate}/>
               <TableCell text={item?.fleet || '-'}/>
               <TableCell text={type[item.type]}/>
               <TableCell text={item?.model}/>
               <TableCell text={status[item?.status]} hasBorder={false} />
             </div>
-          )) : !loading ? (
+          )) : !isFetching ? (
             <div className="flex flex-col items-center justify-center h-20">
-              <p className="font-medium text-md text-center">{inputRef?.current?.value?.length ? 'Nenhum veículo encontrado para esses parâmetros' : 'Sem veículos para exibir'}</p>
+              <p className="font-medium text-md text-center">{inputValue ? 'Nenhum veículo encontrado para esses parâmetros' : 'Sem veículos para exibir'}</p>
             </div>
           ) : null}
-          {loading ? (
+          {isFetching ? (
             Array.from({ length: 3 }).map((_, index) => (
               <div key={index} className="grid grid-cols-5 h-10 border-t-1 border-blue-30">
                 <TableCellLoading />
@@ -149,6 +142,6 @@ export function HomeView(props: HomeViewProps) {
           ) : null}
         </div>
       </div>
-    </SkeletonTheme>
+    </>
   );
 }
