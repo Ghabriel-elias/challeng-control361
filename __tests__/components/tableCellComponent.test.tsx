@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { TableCell, TableCellLoading } from '@/components/TableCellComponent';
-import { render } from '../../test-utils';
+import { render } from '../test-utils';
 
 describe('TableCell', () => {
   it('renders the text correctly', () => {

@@ -1,7 +1,7 @@
 import { screen, fireEvent } from '@testing-library/react';
 import { MarkerComponent } from '@/components/MarkerComponent';
 import { LocationVehicle } from '@/interfaces/vehicleInterfaces';
-import { render } from '../../test-utils';
+import { render } from '../test-utils';
 
 jest.mock('@react-google-maps/api', () => ({
   OverlayView: jest.fn(({ children }) => <div data-testid="overlay-view">{children}</div>),
