@@ -9,7 +9,7 @@ interface FetchVehiclesParams {
   filterTypeParam?: 'tracked' | 'others'
 }
 
-export async function fecthVehicles({
+export async function fetchVehicles({
   page = 1,
   perPage = 20,
   filter = '',
