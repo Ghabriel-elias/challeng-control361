@@ -1,6 +1,6 @@
 import { ButtonComponent } from '@/components/ButtonComponent';
 import { screen, fireEvent } from '@testing-library/react';
-import { render } from '../test-utils';
+import { render } from '../../__mocks__/test-utils';
 
 describe('ButtonComponent', () => {
   it('renders the button with the correct text', () => {

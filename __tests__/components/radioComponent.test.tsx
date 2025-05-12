@@ -1,6 +1,6 @@
 import { screen, fireEvent } from '@testing-library/react';
 import { RadioComponent } from '@/components/RadioComponent';
-import { render } from '../test-utils';
+import { render } from '../../__mocks__/test-utils';
 
 jest.mock('@/components/IconComponent', () => ({
   IconComponent: jest.fn(({ iconName }) => <div data-testid={`icon-${iconName}`} />),

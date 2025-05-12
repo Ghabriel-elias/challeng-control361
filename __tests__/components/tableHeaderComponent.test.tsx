@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { TableHeaderComponent } from '@/components/TableHeaderComponent';
-import { render } from '../test-utils';
+import { render } from '../../__mocks__/test-utils';
 
 describe('TableHeaderComponent', () => {
   it('renders the text correctly', () => {

@@ -1,6 +1,6 @@
 import { screen, fireEvent } from '@testing-library/react';
 import { InputComponent } from '@/components/InputComponent';
-import { render } from '../test-utils';
+import { render } from '../../__mocks__/test-utils';
 
 describe('InputComponent', () => {
   it('renders the input with the correct placeholder', () => {

@@ -1,7 +1,7 @@
 import { useHomeModel } from '@/app/(home)/model';
 import { HomeView } from '@/app/(home)/view';
 import { screen, fireEvent } from '@testing-library/react';
-import { render } from '../../test-utils';
+import { render } from '../../../__mocks__/test-utils';
 
 const mockProps: ReturnType<typeof useHomeModel> = {
   filterType: "tracked" as "tracked" | "others",

@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import { MapComponent } from '@/components/MapComponent';
 import { LocationVehicle } from '@/interfaces/vehicleInterfaces';
-import { render } from '../test-utils';
+import { render } from '../../__mocks__/test-utils';
 
 jest.mock('@react-google-maps/api', () => ({
   GoogleMap: jest.fn(({ children }) => <div data-testid="google-map">{children}</div>),

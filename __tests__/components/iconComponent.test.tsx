@@ -1,6 +1,6 @@
 import { screen } from '@testing-library/react';
 import { IconComponent } from '@/components/IconComponent';
-import { render } from '../test-utils';
+import { render } from '../../__mocks__/test-utils';
 
 describe('IconComponent', () => {
   it('renders the correct icon when a valid iconName is provided', () => {
