@@ -25,7 +25,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   return (
     <div className="mt-6 p-4 bg-blue-15 rounded-2xl border-blue-30 border-1">
       <p className="font-medium text-md">Mapa rastreador</p>
-      {isLoaded && vehiclesLocation?.length ? (
+      {isLoaded ? (
         <GoogleMap
           mapContainerClassName="map-container"
           center={
@@ -36,7 +36,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
           }
           zoom={5}
           onLoad={onLoad}>
-          {vehiclesLocation?.map((item) => (
+          {vehiclesLocation?.length && vehiclesLocation?.map((item) => (
             <MarkerComponent
               key={item?.id + item?.lat + item?.lng}
               item={item}
