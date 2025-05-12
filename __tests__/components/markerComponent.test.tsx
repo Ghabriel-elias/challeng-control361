@@ -71,10 +71,10 @@ describe('MarkerComponent', () => {
 
     const plate = screen.getByText(/Placa ABC-1234/);
     const fleet = screen.getByText(/Frota Fleet 1/);
-    const dates = screen.getAllByText((content, element) => {
-      return element?.textContent?.includes('01/01/2023 - 08:00');
+    const dates = screen.getAllByText((_content: string, element: Element | null) => {
+      return !!(element as HTMLElement)?.textContent?.includes('01/01/2023 - 08:00');
     });
-
+    
     expect(plate).toBeInTheDocument();
     expect(fleet).toBeInTheDocument();
     expect(dates.length).toBeGreaterThan(0); 
