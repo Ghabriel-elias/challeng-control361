@@ -68,6 +68,7 @@ export const IconComponent: React.FC<IconPropsExtended> = ({
 
   return (
     <IconLib
+      data-testid="icon"
       size={size}
       className={className}
       color={color}

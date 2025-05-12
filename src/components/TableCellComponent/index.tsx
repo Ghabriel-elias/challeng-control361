@@ -19,7 +19,7 @@ export const TableCell: React.FC<TableCellProps> = ({ text, hasBorder = true }) 
 
 export const TableCellLoading: React.FC<TableCellProps> = ({ hasBorder = true }) => {
   return (
-    <div className={`flex justify-center items-center ${
+    <div data-testid="table-cell-loading" className={`flex justify-center items-center ${
         hasBorder ? 'border-r-1 border-blue-30' : ''
       } w-full`}>
       <div className='w-2/4'>
